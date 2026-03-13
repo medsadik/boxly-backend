@@ -42,7 +42,7 @@ public class WeeklySubscriptionServiceImpl implements WeeklySubscriptionService{
         }
 
         WeeklySubscription subscription = weeklySubscriptionMapper.toEntity(request);
-        if (DISCOUNT.contains(subscription.getEmploye().getCsp())) {
+        if (DISCOUNT.contains(employe.getCsp())) {
             subscription.setSubscriptionPrice(20);
         } else {
             subscription.setSubscriptionPrice(40);
