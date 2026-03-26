@@ -120,7 +120,7 @@ public class MenuWeekDayServiceImpl implements MenuWeekDayService {
                 .orElseThrow(() -> new RuntimeException("MenuOption not found with id: " + optionId));
     }
 
-    public void generateMenuWeekDaysFromStartToToday(LocalDate startDate) {
+    public void generateMenuWeekDaysFromStartToToday(LocalDate startDate,LocalDate endDate) {
 
         List<MenuOption> allOptions = menuOptionRepository.findAll();
         if (allOptions.isEmpty()) {
@@ -130,7 +130,7 @@ public class MenuWeekDayServiceImpl implements MenuWeekDayService {
         LocalDate today = LocalDate.now();
         LocalDate current = startDate;
 
-        while (!current.isAfter(today)) {
+        while (!current.isAfter(endDate)) {
 
             if (current.getDayOfWeek() == DayOfWeek.SATURDAY ||
                     current.getDayOfWeek() == DayOfWeek.SUNDAY) {

@@ -10,6 +10,7 @@ import org.example.boxlybackend.services.impl.EmployeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -41,6 +42,7 @@ public class EmployeController {
 
         return ResponseEntity.ok(response);
     }
+
 //    @GetMapping("/consumption-stats")
 //    public EmployeConsumptionStat getTotalAmountByMonth(
 //            @RequestParam String email

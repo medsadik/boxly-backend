@@ -5,16 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.DayOfWeek;
-import java.util.Set;
+import java.time.LocalDate;
+import java.util.List;
 
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class WeeklySubscriptionRequest{
-    private String email;
-    Set<DayOfWeek> subscribedDays;
-    private boolean active;
+public class DailyCancellationRequestDTO {
+    List<LocalDate> dates;
+    String reason;
 }

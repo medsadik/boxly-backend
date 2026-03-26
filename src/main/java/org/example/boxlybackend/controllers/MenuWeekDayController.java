@@ -44,8 +44,10 @@ public class MenuWeekDayController {
 
     @PostMapping("/generate-from-start")
     public ResponseEntity<String> generateFromStart(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate) {
-        menuWeekDayService.generateMenuWeekDaysFromStartToToday(startDate);
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+            ) {
+        menuWeekDayService.generateMenuWeekDaysFromStartToToday(startDate,endDate);
         return ResponseEntity.ok("MenuWeekDays generated from " + startDate + " to today with default options.");
     }
 }

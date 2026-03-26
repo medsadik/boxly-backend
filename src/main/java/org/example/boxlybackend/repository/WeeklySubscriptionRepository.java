@@ -16,7 +16,7 @@ public interface WeeklySubscriptionRepository extends JpaRepository<WeeklySubscr
     Optional<WeeklySubscription> findByEmployeAndActiveTrue(Employe employe);
     Optional<WeeklySubscription> findByEmploye(Employe employe);
     Optional<WeeklySubscription> findByEmployeEmail(String email);
-
+    List<WeeklySubscription> findAllByActiveTrue();
     long countByActiveTrue();
     @Query("""
 SELECT new  org.example.boxlybackend.dto.MonthlyValue(

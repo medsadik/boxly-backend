@@ -5,12 +5,15 @@ import org.example.boxlybackend.dto.*;
 import org.example.boxlybackend.entites.WeeklySubscription;
 import org.example.boxlybackend.repository.LunchReservationRepository;
 import org.example.boxlybackend.repository.WeeklySubscriptionRepository;
+import org.example.boxlybackend.utils.DateUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+
+import static org.example.boxlybackend.utils.DateUtils.countWorkDaysInCurrentMonth;
 
 
 @Service
@@ -30,7 +33,8 @@ public class DashboardService {
         long totalReservations = reservationRepository.countConfirmedReservations(monthStart, monthEnd);
         long totalCancellations = reservationRepository.countCancelledReservations(monthStart, monthEnd);
         long totalReclamations = 0;
-        return new GlobalDashboardStats(totalEmployees, totalReservations, totalCancellations, totalReclamations);
+        long gap = countWorkDaysInCurrentMonth() * 50L - totalReservations;
+        return new GlobalDashboardStats(totalEmployees, totalReservations, totalCancellations, totalReclamations,gap);
     }
 
     public MonthlyDashboardStatsResponse getMonthlyDashboardStats() {

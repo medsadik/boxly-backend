@@ -16,4 +16,5 @@ public class GlobalDashboardStats {
     private long totalReservationsCurrentMonth;
     private long totalCancellationsCurrentMonth;
     private long totalReclamationsCurrentMonth;
+    private long gap;
 }

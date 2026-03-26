@@ -23,8 +23,8 @@ public interface MenuWeekDayService {
     void removeOption(Long optionId, LocalDate date);
     MenuWeekDayResponse getMenuByDate(LocalDate date);
     List<MenuWeekDayResponse> getWeekMenu(LocalDate startDate);
-    public void generateMenuWeekDaysFromStartToToday(LocalDate startDate);
-//    MenuWeekDayResponse removeOption(Long weekId, Long dayId, Long optionId);
+    void generateMenuWeekDaysFromStartToToday(LocalDate startDate,LocalDate endDate);
+    //    MenuWeekDayResponse removeOption(Long weekId, Long dayId, Long optionId);
 //
 //    MenuWeekDayResponse setDefaultOption(Long weekId, Long dayId, Long optionId);
 }

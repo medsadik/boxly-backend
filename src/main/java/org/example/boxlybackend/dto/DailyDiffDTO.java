@@ -5,16 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.DayOfWeek;
-import java.util.Set;
-
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class WeeklySubscriptionRequest{
-    private String email;
-    Set<DayOfWeek> subscribedDays;
-    private boolean active;
+public class DailyDiffDTO{
+    private LocalDate date;
+    private long count;
+    private long diff;
 }

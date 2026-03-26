@@ -1,13 +1,11 @@
 package org.example.boxlybackend.services;
 
-import org.example.boxlybackend.dto.EmployeReservationStats;
-import org.example.boxlybackend.dto.LunchReservationRequest;
-import org.example.boxlybackend.dto.LunchReservationResponse;
-import org.example.boxlybackend.dto.MonthlyStatsResponse;
+import org.example.boxlybackend.dto.*;
 import org.springframework.cglib.core.Local;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface LunchReservationService {
     void generateReservationsForWeek(LocalDate weekStart);
@@ -16,7 +14,8 @@ public interface LunchReservationService {
 
     void cancelLunchReservationFor(Long reservationId);
     void cancelLunchReservationFor(String email, LocalDate date);
-
+    void generateReservations(LocalDate startDate, LocalDate endDate);
+    List<MonthlyStats> getMonthlyDiffs();
     LunchReservationResponse changeMenuOption(Long reservationId, Long menuOptionId);
     List<LunchReservationResponse> getReservationsForEmployee(String email);
     List<LunchReservationResponse> getReservationsBetween(
@@ -26,7 +25,11 @@ public interface LunchReservationService {
     );
 
     List<LunchReservationResponse> getReservationsForDay(LocalDate date);
-
+    List<DailyDiffDTO> getReservationDiffs(
+            LocalDate startDate,
+            LocalDate endDate
+    );
+    List<DailyDiffDTO> getCurrentMonthDiffs();
 //    List<MenuOptionCountDTO> getMenuSummaryForDay(LocalDate date);
 public EmployeReservationStats getCurrentMonthStat(String email);
     boolean reservationExists(String email, LocalDate date);

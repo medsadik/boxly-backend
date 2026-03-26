@@ -8,13 +8,11 @@ import lombok.NoArgsConstructor;
 import java.time.DayOfWeek;
 import java.util.Set;
 
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class WeeklySubscriptionRequest{
-    private String email;
+public class WeeklySubscriptionUpdateRequest {
     Set<DayOfWeek> subscribedDays;
     private boolean active;
 }
