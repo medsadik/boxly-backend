@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.\\(sh|bat|gradle|mk|xml\\)$\")",
+      "Bash(git -C /c/Work/Projects/boxly/boxly-backend log --oneline -10)",
+      "Bash(git -C /c/Work/Projects/boxly/boxly-backend remote -v)"
+    ]
+  }
+}

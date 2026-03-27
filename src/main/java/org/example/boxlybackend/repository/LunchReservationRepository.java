@@ -129,4 +129,6 @@ ORDER BY YEAR(r.menuWeekDay.date), MONTH(r.menuWeekDay.date)
 
     List<LunchReservation> findByEmployeAndMenuWeekDay_DateIn(Employe employe, List<LocalDate> dates);
 
+    List<LunchReservation> findByMenuWeekDay_DateAndStatus(LocalDate date, org.example.boxlybackend.entites.Enums.ReservationStatus status);
+
 }
