@@ -6,15 +6,18 @@ import org.example.boxlybackend.dto.*;
 import org.example.boxlybackend.dto.projection.MonthlyStatsProjection;
 import org.example.boxlybackend.entites.*;
 import org.example.boxlybackend.entites.Enums.RequestStatus;
+import org.example.boxlybackend.entites.Enums.ReservationAction;
 import org.example.boxlybackend.entites.Enums.ReservationStatus;
 import org.example.boxlybackend.repository.*;
 import org.example.boxlybackend.services.LunchReservationService;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,6 +31,7 @@ public class LunchReservationServiceImpl implements LunchReservationService {
     private final MenuWeekDayRepository menuWeekDayRepository;
     private final CancellationResquestRepository cancelResquestRepository;
     private final MenuOptionRepository menuOptionRepository;
+    private final ReservationHistoryRepository reservationHistoryRepository;
     private static final int RESERVATION_BASELINE = 50;
     @Override
     public void generateReservationsForWeek(LocalDate weekStart) {
@@ -246,6 +250,47 @@ public class LunchReservationServiceImpl implements LunchReservationService {
         if (!toSave.isEmpty()) {
             reservationRepository.saveAll(toSave);
         }
+    }
+
+    @Override
+    public void restoreReservation(Long reservationId, Authentication authentication) {
+        LunchReservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new RuntimeException("Reservation not found"));
+
+        if (reservation.getStatus() != ReservationStatus.CANCELLED) {
+            throw new RuntimeException("Reservation is not cancelled");
+        }
+
+        reservation.setStatus(ReservationStatus.CONFIRMED);
+        reservation.setCancelledAt(null);
+        reservation.setCancelledBy(null);
+        reservationRepository.save(reservation);
+
+        ReservationHistory history = ReservationHistory.builder()
+                .reservation(reservation)
+                .action(ReservationAction.RESTORED)
+                .performedBy(authentication.getName())
+                .performedAt(LocalDateTime.now())
+                .build();
+        reservationHistoryRepository.save(history);
+    }
+
+    @Override
+    public List<ReservationHistoryResponse> getReservationHistory(Long reservationId) {
+        if (!reservationRepository.existsById(reservationId)) {
+            throw new RuntimeException("Reservation not found");
+        }
+        return reservationHistoryRepository
+                .findByReservationIdOrderByPerformedAtAsc(reservationId)
+                .stream()
+                .map(h -> new ReservationHistoryResponse(
+                        h.getId(),
+                        h.getAction(),
+                        h.getPerformedBy(),
+                        h.getPerformedAt(),
+                        h.getNote()
+                ))
+                .toList();
     }
 
     private Employe getEmployeeByEmail(String email) {

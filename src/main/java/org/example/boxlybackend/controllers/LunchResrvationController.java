@@ -5,9 +5,11 @@ import org.example.boxlybackend.dto.DailyDiffDTO;
 import org.example.boxlybackend.dto.EmployeReservationStats;
 import org.example.boxlybackend.dto.MonthlyStats;
 import org.example.boxlybackend.dto.MonthlyStatsResponse;
+import org.example.boxlybackend.dto.ReservationHistoryResponse;
 import org.example.boxlybackend.services.LunchReservationService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -83,5 +85,21 @@ public class LunchResrvationController {
     @GetMapping("/diff/grouped-by-month")
     public List<MonthlyStats> getMonthlyStats() {
         return lunchReservationService.getMonthlyDiffs();
+    }
+
+    @PostMapping("/{id}/restore")
+    public ResponseEntity<String> restoreReservation(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        lunchReservationService.restoreReservation(id, authentication);
+        return ResponseEntity.ok("Reservation restored successfully");
+    }
+
+    @GetMapping("/{id}/history")
+    public ResponseEntity<List<ReservationHistoryResponse>> getReservationHistory(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(lunchReservationService.getReservationHistory(id));
     }
 }

@@ -10,13 +10,16 @@ import org.example.boxlybackend.entites.CancellationRequest;
 import org.example.boxlybackend.entites.Employe;
 import org.example.boxlybackend.entites.Enums.RequestStatus;
 import org.example.boxlybackend.entites.Enums.RequestType;
+import org.example.boxlybackend.entites.Enums.ReservationAction;
 import org.example.boxlybackend.entites.Enums.ReservationStatus;
 import org.example.boxlybackend.entites.LunchReservation;
+import org.example.boxlybackend.entites.ReservationHistory;
 import org.example.boxlybackend.mapper.CancellationMapper;
 import org.example.boxlybackend.repository.CancellationResquestRepository;
 import org.example.boxlybackend.repository.EmployeRepository;
 import org.example.boxlybackend.repository.LunchReservationRepository;
 import org.example.boxlybackend.repository.MenuWeekDayRepository;
+import org.example.boxlybackend.repository.ReservationHistoryRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +37,7 @@ public class CancellationRequestServiceImpl {
     private final EmployeRepository employeRepository;
     private final LunchReservationRepository lunchReservationRepository;
     private final CancellationMapper cancellationMapper;
+    private final ReservationHistoryRepository reservationHistoryRepository;
     public List<CancellationResponse> getCancelllations(Authentication authentication)
     {
         String email = authentication.getName();
@@ -119,7 +123,7 @@ public class CancellationRequestServiceImpl {
 
         cancellationResquestRepository.saveAll(requestsToSave);
 
-        cancelReservationsBulk(employe, dates);
+        cancelReservationsBulk(employe, dates, email);
     }
 
     public void approveRequest(Long requestId, Authentication authentication) {
@@ -145,7 +149,7 @@ public class CancellationRequestServiceImpl {
     }
 
 
-    private void cancelReservationsBulk(Employe employe, List<LocalDate> dates) {
+    private void cancelReservationsBulk(Employe employe, List<LocalDate> dates, String performedBy) {
 
         List<LunchReservation> reservations =
                 lunchReservationRepository.findByEmployeAndMenuWeekDay_DateIn(
@@ -153,25 +157,56 @@ public class CancellationRequestServiceImpl {
                         dates
                 );
 
-        reservations.forEach(r -> r.setStatus(ReservationStatus.CANCELLED));
+        LocalDateTime now = LocalDateTime.now();
+
+        reservations.stream()
+                .filter(r -> r.getStatus() != ReservationStatus.CANCELLED)
+                .forEach(r -> {
+                    r.setStatus(ReservationStatus.CANCELLED);
+                    r.setCancelledAt(now);
+                    r.setCancelledBy(performedBy);
+                });
 
         lunchReservationRepository.saveAll(reservations);
+
+        List<ReservationHistory> historyEntries = reservations.stream()
+                .map(r -> ReservationHistory.builder()
+                        .reservation(r)
+                        .action(ReservationAction.CANCELLED)
+                        .performedBy(performedBy)
+                        .performedAt(now)
+                        .build())
+                .toList();
+        reservationHistoryRepository.saveAll(historyEntries);
     }
-    private void cancelReservations(Employe employe, LocalDate start, LocalDate end,String cancelledBy) {
+    private void cancelReservations(Employe employe, LocalDate start, LocalDate end, String cancelledBy) {
 
         List<LunchReservation> reservations =
                 lunchReservationRepository.findByEmployeAndDateBetween(
                         employe, start, end
                 );
 
-        reservations.stream()
-                .filter(r -> r.getStatus() != ReservationStatus.CANCELLED)
-                .forEach(r -> {
-                    r.setStatus(ReservationStatus.CANCELLED);
-                    r.setCancelledAt(LocalDateTime.now());
-                    r.setCancelledBy(cancelledBy);
-                });
+        LocalDateTime now = LocalDateTime.now();
 
-        lunchReservationRepository.saveAll(reservations);
+        List<LunchReservation> toCancel = reservations.stream()
+                .filter(r -> r.getStatus() != ReservationStatus.CANCELLED)
+                .peek(r -> {
+                    r.setStatus(ReservationStatus.CANCELLED);
+                    r.setCancelledAt(now);
+                    r.setCancelledBy(cancelledBy);
+                })
+                .toList();
+
+        lunchReservationRepository.saveAll(toCancel);
+
+        List<ReservationHistory> historyEntries = toCancel.stream()
+                .map(r -> ReservationHistory.builder()
+                        .reservation(r)
+                        .action(ReservationAction.CANCELLED)
+                        .performedBy(cancelledBy)
+                        .performedAt(now)
+                        .build())
+                .toList();
+        reservationHistoryRepository.saveAll(historyEntries);
     }
 }

@@ -2,6 +2,7 @@ package org.example.boxlybackend.services;
 
 import org.example.boxlybackend.dto.*;
 import org.springframework.cglib.core.Local;
+import org.springframework.security.core.Authentication;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -36,5 +37,7 @@ public EmployeReservationStats getCurrentMonthStat(String email);
     public void generateReservationsForEmployee(String email);
     List<MonthlyStatsResponse> getMonthlyStats(String email);
 
+    void restoreReservation(Long reservationId, Authentication authentication);
 
+    List<ReservationHistoryResponse> getReservationHistory(Long reservationId);
 }
