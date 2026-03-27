@@ -18,4 +18,6 @@ public interface CancellationResquestRepository extends JpaRepository<Cancellati
     boolean existsByEmployeAndStartDateAndEndDate(Employe employe, LocalDate date, LocalDate date1);
 
     List<CancellationRequest> findByEmployeEmail(String email);
+
+    List<CancellationRequest> findByStatusOrderByCreatedAtAsc(RequestStatus status);
 }

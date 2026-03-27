@@ -3,6 +3,7 @@ package org.example.boxlybackend.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.example.boxlybackend.dto.AdminCancellationResponse;
 import org.example.boxlybackend.dto.CancellationRequestDTO;
 import org.example.boxlybackend.dto.CancellationResponse;
 import org.example.boxlybackend.dto.DailyCancellationRequestDTO;
@@ -124,6 +125,40 @@ public class CancellationRequestServiceImpl {
         cancellationResquestRepository.saveAll(requestsToSave);
 
         cancelReservationsBulk(employe, dates, email);
+    }
+
+    public List<AdminCancellationResponse> getPendingRequests() {
+        return cancellationResquestRepository
+                .findByStatusOrderByCreatedAtAsc(RequestStatus.PENDING)
+                .stream()
+                .map(r -> AdminCancellationResponse.builder()
+                        .id(r.getId())
+                        .employeName(r.getEmploye().getName())
+                        .matricule(r.getEmploye().getMatricule())
+                        .startDate(r.getStartDate())
+                        .endDate(r.getEndDate())
+                        .reason(r.getReason())
+                        .type(r.getType())
+                        .status(r.getStatus())
+                        .createdAt(r.getCreatedAt())
+                        .build())
+                .toList();
+    }
+
+    public void rejectRequest(Long requestId, Authentication authentication) {
+        String adminEmail = authentication.getName();
+
+        CancellationRequest request = cancellationResquestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Cancellation request not found"));
+
+        if (request.getStatus() != RequestStatus.PENDING) {
+            throw new RuntimeException("Only pending requests can be rejected");
+        }
+
+        request.setStatus(RequestStatus.REJECTED);
+        request.setValidatedAt(LocalDateTime.now());
+        request.setValidatedBy(adminEmail);
+        cancellationResquestRepository.save(request);
     }
 
     public void approveRequest(Long requestId, Authentication authentication) {

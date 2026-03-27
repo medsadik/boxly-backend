@@ -2,6 +2,7 @@ package org.example.boxlybackend.controllers;
 
 
 import lombok.RequiredArgsConstructor;
+import org.example.boxlybackend.dto.AdminCancellationResponse;
 import org.example.boxlybackend.dto.CancellationRequestDTO;
 import org.example.boxlybackend.dto.CancellationResponse;
 import org.example.boxlybackend.dto.DailyCancellationRequestDTO;
@@ -55,5 +56,20 @@ public class CancellationRequestController {
     public ResponseEntity<List<CancellationResponse>> getCancellations(Authentication authentication) {
         List<CancellationResponse> cancelllations = cancellationService.getCancelllations(authentication);
         return ResponseEntity.ok().body(cancelllations);
+    }
+
+    // Admin endpoints
+    @GetMapping("/pending")
+    public ResponseEntity<List<AdminCancellationResponse>> getPendingRequests() {
+        return ResponseEntity.ok(cancellationService.getPendingRequests());
+    }
+
+    @PostMapping("/{id}/reject")
+    public ResponseEntity<String> rejectRequest(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        cancellationService.rejectRequest(id, authentication);
+        return ResponseEntity.ok("Request rejected successfully");
     }
 }
